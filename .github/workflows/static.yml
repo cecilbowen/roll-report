@@ -32,6 +32,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install NPM Packages
+        working-directory: client
         uses: bahmutov/npm-install@v1
 
       - name: Build project
