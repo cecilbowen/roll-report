@@ -1,5 +1,7 @@
-export const SERVER_BASE = "http://localhost:3001";
-export const NGROK_BASE = "https://unhocked-daniella-outspoken.ngrok-free.dev";
+export const DEBUG = process.env.REACT_APP_DEBUG === "true";
+export const SERVER_BASE = DEBUG ? "http://localhost:3001" : process.env.REACT_APP_API_BASE;
+export const NGROK_BASE = DEBUG ?
+  "https://unhocked-daniella-outspoken.ngrok-free.dev" : process.env.REACT_APP_API_BASE;
 
 export const getStatus = async() => {
   let ret;
