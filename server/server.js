@@ -121,7 +121,11 @@ const prepareManifestSqlite = async() => {
 const app = express();
 // app.use(cors({ origin: ["http://localhost:3000"], credentials: false }));
 app.use(cors({
-  origin: ["http://localhost:3000", "https://roll.report", "http://www.roll.report"],
+  origin: [
+    "http://localhost:3000",
+    "http://roll.report",
+    "https://roll.report", "https://www.roll.report"
+  ],
   credentials: true,
 }));
 app.use(express.json({ limit: "2mb" }));
