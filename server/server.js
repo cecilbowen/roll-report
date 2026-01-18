@@ -128,22 +128,10 @@ app.use(cors({
   origin(origin, cb) {
     // No Origin = curl/postman/server-to-server -> allow
     if (!origin) { return cb(null, true); }
-
-    // Debug once while you’re verifying:
-    console.log("CORS Origin:", origin);
-
     return cb(null, allow.has(origin));
   },
   credentials: true,
 }));
-// app.use(cors({
-//   origin: [
-//     "http://localhost:3000",
-//     "http://roll.report", "https://roll.report",
-//     "http://www.roll.report", "https://www.roll.report"
-//   ],
-//   credentials: true,
-// }));
 app.use(express.json({ limit: "2mb" }));
 app.use(router);
 app.use(cookieParser());

@@ -14,6 +14,7 @@ import { getSearchParam, setSearchParam } from './utils';
 const PANEL_LIMIT = 10; // how many weapons to list in the search results panel
 const STATUS_RETRY = 200;
 const STATUS_RETRY_LIMIT = 10;
+const DEBUG = process.env.REACT_APP_DEBUG === "true";
 
 const damageTypeMap = {
   1: "Kinetic",
@@ -140,7 +141,10 @@ const App = () => {
       if (weapons.length === 0) {
         getWeaponsList().then(rsp => {
           setWeapons(rsp);
-          console.log("weapons", rsp);
+
+          if (DEBUG) {
+            console.log("weapons", rsp);
+          }
         });
       }
       // window.bungo = getInventoryUniques;
@@ -196,7 +200,9 @@ const App = () => {
   useEffect(() => {
     let imgUrl = "blank.png";
     if (selectedWeapon) {
-      console.log("selectedWeapon", selectedWeapon);
+      if (DEBUG) {
+        console.log("selectedWeapon", selectedWeapon);
+      }
       setSearchText(selectedWeapon?.name);
       setPerkTab("basic");
       imgUrl = selectedWeapon?.images?.screenshot;
@@ -279,7 +285,9 @@ const App = () => {
       leniency: Math.max(0, Number(leniency)),
     });
 
-    console.log("PERK COMBO RESULTS:", data);
+    if (DEBUG) {
+      console.log("PERK COMBO RESULTS:", data);
+    }
     setPerkResults(data?.results);
     setOriginResults(data?.originResults);
   };
