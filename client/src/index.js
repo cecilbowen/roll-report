@@ -4,6 +4,12 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+const params = new URLSearchParams(window.location.search);
+const p = params.get("p");
+if (p) {
+  window.history.replaceState(null, "", decodeURIComponent(p));
+}
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
