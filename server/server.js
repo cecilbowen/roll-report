@@ -1,5 +1,6 @@
 /* eslint-disable consistent-return */
 /* eslint-disable no-process-env */
+import 'dotenv/config';
 import express from "express";
 import cors from "cors";
 import fs from "fs";
