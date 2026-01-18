@@ -21,12 +21,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Single deploy job since we're just deploying
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,6 +36,7 @@ jobs:
         uses: bahmutov/npm-install@v1
 
       - name: Build project
+        working-directory: client
         run: npm run build
         env:
           CI: "false"
@@ -46,7 +47,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './build'
+          path: client/build
 
       - name: Deploy to GitHub Pages
         id: deployment
