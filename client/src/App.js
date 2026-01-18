@@ -47,7 +47,7 @@ const weaponPerDay = {
   4: 3981920134, // Aureus Neutralizer
   5: 2575506895, // Kindled Orchid
   6: 2226158470, // Unworthy
-  7: 1039915310 // Non-Denouement (Adept)
+  0: 1039915310 // Non-Denouement (Adept)
 };
 
 const App = () => {
