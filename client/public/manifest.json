@@ -1,0 +1,15 @@
+{
+  "short_name": "Roll Report",
+  "name": "Roll Report",
+  "icons": [
+    {
+      "src": "rolly_96.png",
+      "type": "image/png",
+      "sizes": "96x96"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

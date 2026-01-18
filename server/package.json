@@ -1,0 +1,20 @@
+{
+  "type": "module",
+  "dependencies": {
+    "better-sqlite3": "^12.5.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "node-fetch": "^3.3.2",
+    "yauzl": "^3.2.0"
+  },
+  "exports": "./server/server.js",
+  "scripts": {
+    "lint": "eslint \"**/*.js\""
+  },
+  "devDependencies": {
+    "eslint": "^9.39.2",
+    "globals": "^17.0.0"
+  }
+}
