@@ -4,6 +4,8 @@ x: done
 
 want to get done:
 ------------------
+x ability to click on perks from all perks section to exclude combos with that perk from showing in the combo results
+    - better visually indicate to the user this is happening
 x make mobile UI work/look better overall
     x modal bad on mobile 
     / alternative options placement

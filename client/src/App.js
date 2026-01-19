@@ -47,6 +47,7 @@ const App = () => {
   const [weapons, setWeapons] = useState([]);
   const [perkResults, setPerkResults] = useState();
   const [originResults, setOriginResults] = useState();
+  const [disabledPerks, setDisabledPerks] = useState([]); // perk hashes user doesn't want to see results of
   const [modalShowing, setModalShowing] = useState(false);
   const [wallpaper, setWallpaper] = useState("blank.png");
   const [perkTab, setPerkTab] = useState("basic"); // basic, origin
@@ -147,7 +148,7 @@ const App = () => {
       checkPerks();
     }
   }, [
-    weaponHash, filters, leniency
+    weaponHash, filters, leniency, disabledPerks
   ]);
 
   useEffect(() => {
@@ -249,8 +250,10 @@ const App = () => {
     if (DEBUG) {
       console.log("PERK COMBO RESULTS:", data);
     }
-    setPerkResults(data?.results);
-    setOriginResults(data?.originResults);
+    setPerkResults(data?.results?.filter(x => !disabledPerks.includes(x?.perk3?.hash) && !disabledPerks.includes(x?.perk4?.hash)));
+    setOriginResults(
+      data?.originResults?.filter(x => !disabledPerks.includes(x?.perk3?.hash) && !disabledPerks.includes(x?.perk4?.hash))
+    );
   };
 
   const queueDimQuery = bungieName => {
@@ -271,6 +274,16 @@ const App = () => {
     });
   };
 
+  const enableDisablePerk = hash => {
+    const newDisabledPerks = [...disabledPerks].filter(x => x !== hash);
+    if (disabledPerks.includes(hash)) {
+      setDisabledPerks(newDisabledPerks);
+      return;
+    }
+    newDisabledPerks.push(hash);
+    setDisabledPerks(newDisabledPerks);
+  };
+
   const updateFilters = (filterName, value) => {
     const newFilters = { ...filters };
     newFilters[filterName] = value;
@@ -282,11 +295,10 @@ const App = () => {
 
     const set = perkTab === "basic" ? perkResults : originResults;
     const results = set.filter(x => x.isUniqueWithinLeniency);
-    const none = (selectedWeapon?.originTraits?.length || 0) === 0 &&
-      results.length === 0;
 
     const basicNum = perkResults?.filter(x => x.isUniqueWithinLeniency)?.length ?? 0;
     const originNum = originResults?.filter(x => x.isUniqueWithinLeniency)?.length ?? 0;
+    const none = basicNum === 0 && originNum === 0;
 
     const perkText = width > 500 ? "Unique Perk Combos" : "Unique";
     const originText = width > 500 ? "Unique Origin Combos" : "Origin";
@@ -327,8 +339,9 @@ const App = () => {
   };
 
   const renderPerk = perk => {
-    return <div key={`${perk.hash}`} className="perk-single">
-      <img className="perk-icon-single noselect" src={perk.icon} alt={perk.name} title={perk.name}></img>
+    return <div key={`${perk.hash}`} className="perk-single" onClick={() => enableDisablePerk(perk.hash)}>
+      <img className={`perk-icon-single noselect ${disabledPerks.includes(perk.hash) ? "perk-icon-disabled" : ""}`}
+        src={perk.icon} alt={perk.name} title={perk.name}></img>
     </div>;
   };
 

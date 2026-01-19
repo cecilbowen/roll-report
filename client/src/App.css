@@ -363,6 +363,13 @@ hr.solid {
   padding: 4px;
   cursor: pointer;
 }
+.perk-icon-single:hover {
+  outline: 2px inset #ffff004d;
+  transform: scale(1.04);
+}
+.perk-icon-disabled {
+  filter: brightness(50%) sepia(100%) saturate(10000%) opacity(50%);
+}
 
 .selected-weapon {
   display: flex;
