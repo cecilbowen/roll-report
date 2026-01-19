@@ -28,7 +28,3 @@ The `0` here is a number input field that can be changed.  This means that if yo
 ## DIM Export
 
 There is a vault symbol near the bottom-right corner of the page that brings up a pop-up when you click it.  It can check your entire vault/inventory of weapons and give you back a DIM (Destiny Item Manager) query that you can paste into the DIM search box to have it list you all your weapons that have one-of-a-kind rolls.  This allows you to be able to do whatever you want with them there, like maybe tagging them or etc.  In order for this to work, you need to either login via Bungie.net or enter your Bungie name.  If you choose to just enter your Bungie name and not login, the app can only access what you have set to public.  By default, this means it can only see your equipped gear.  You can change this by going into your Bungie.net settings if you wish, and [look for a checkbox under](https://i.imgur.com/XS0nEnl.png) `Privacy > Show my non-equipped Inventory`.  Toggling this ON will make your vault and postmaster public.
-
-## Contributions
-
-Feel free to create an issue or open up a PR if you find a bug or want to improve something.  This app isn't anything too crazy, and was just made because I couldn't find anything like it to use (it would be pretty cool if DIM had it as a filter like `is:uniqueroll`).  Regardless, thanks for taking the time to poke around.

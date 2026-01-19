@@ -1,0 +1,1 @@
+Feel free to create an issue or open up a PR if you find a bug or want to improve something.  This app isn't anything too crazy, and was just made because I couldn't find anything like it to use (it would be pretty cool if DIM had it as a filter like `is:uniqueroll`).  Regardless, thanks for taking the time to poke around.
