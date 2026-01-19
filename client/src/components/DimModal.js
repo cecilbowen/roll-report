@@ -87,7 +87,7 @@ const DimModal = ({
                                 if (document?.getElementById("modalInput").checkValidity() && !querying) {
                                     onClick(inputValue);
                                 }
-                            }}>{querying ? "Loading..." : okText}</button>
+                            }}>{okText}</button>
                     </div>
                     <div className="modal-buttons">
                         <button className="btn-bungie" onClick={() => bungoLogin()} disabled={querying || noBungie}>

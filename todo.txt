@@ -30,6 +30,7 @@ x unify search panel weapon icon element icon positions
 - arrow keys to move through guns in search panel quicker
 - ENTER functionality on modal input
 - make dim export take user's filter into account, but also update message in modal to notify user this will happen
+- add last tool updated date as a title attribute when hovering on the version text 
 
 
 code-related cleanup:
