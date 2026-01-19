@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { copyTextToClipboard } from "../utils";
 import PropTypes from 'prop-types';
 
@@ -9,10 +9,6 @@ const DimModal = ({
     membershipId, noBungie
 }) => {
     const [inputValue, setInputValue] = useState("");
-
-    useEffect(() => {
-        console.log("querying", querying);
-    }, [querying]);
 
     if (!active) { return null; }
 
@@ -93,8 +89,6 @@ const DimModal = ({
             <div className="modal-footer">
 
             </div>
-            {/* <button className="modal-help" title="Where is the 'show my non-equipped inventory' setting?"
-                onClick={() => window.open("https://i.imgur.com/XS0nEnl.png", "_blank")}>?</button> */}
         </div>
     </div>;
 };

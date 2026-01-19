@@ -3,84 +3,55 @@ import pkg from "../package.json";
 import { useEffect, useState } from "react";
 import {
   fetchPerkCombos, getWeaponsList, getInventoryUniques,
-  getStatus, loginWithBungie, NGROK_BASE, getMyInventoryUniques,
+  getStatus, loginWithBungie, HTTPS_BASE, getMyInventoryUniques,
   getLoginStatus
 } from "./d2/perkComboClient";
 import DimModal from './components/DimModal';
 import useWindowSize from './hooks/useWindowSize';
 import Loading from './components/Loading';
-import { getSearchParam, setSearchParam } from './utils';
-
-const PANEL_LIMIT = 10; // how many weapons to list in the search results panel
-const STATUS_RETRY = 200;
-const STATUS_RETRY_LIMIT = 10;
-const DEBUG = process.env.REACT_APP_DEBUG === "true";
-
-const damageTypeMap = {
-  1: "Kinetic",
-  2: "Arc",
-  3: "Solar",
-  4: "Void",
-  5: "Raid",
-  6: "Stasis",
-  7: "Strand"
-};
-
-const ammoTypeMap = {
-  1: "Primary",
-  2: "Special",
-  3: "Heavy"
-};
-
-const ammoTypeImgMap = {
-  1: "https://www.bungie.net/common/destiny2_content/icons/99f3733354862047493d8550e46a45ec.png",
-  2: "https://www.bungie.net/common/destiny2_content/icons/d920203c4fd4571ae7f39eb5249eaecb.png",
-  3: "https://www.bungie.net/common/destiny2_content/icons/78ef0e2b281de7b60c48920223e0f9b1.png"
-};
-
-// todo: later on post-release, >>MAYBE<< just choose random, current season, new-gear weapon
-//       instead of one of my personal picks below
-const weaponPerDay = {
-  1: 2883684343, // Hung Jury SR4 (Adept)
-  2: 1354727549, // The Slammer (Adept)
-  3: 3019024381, // The Prophet (Adept)
-  4: 3981920134, // Aureus Neutralizer
-  5: 2575506895, // Kindled Orchid
-  6: 2226158470, // Unworthy
-  0: 1039915310 // Non-Denouement (Adept)
-};
+import {
+  ammoTypeMap, damageTypeMap, DEBUG,
+  getSearchParam, setSearchParam, STATUS_RETRY,
+  STATUS_RETRY_LIMIT, weaponPerDay
+} from './utils';
+import Options from './components/Options';
+import SearchResultsPanel from './components/SearchResultsPanel';
 
 const App = () => {
+  // fetch-related
   const [statusGood, setStatusGood] = useState(false);
   const [statusCounter, setStatusCounter] = useState(0);
   const [membershipId, setMembershipId] = useState(); // if set, logged in
   const [oauthDisabled, setOauthDisabled] = useState(false);
+  const [fetchingDim, setFetchingDim] = useState(false);
+  const [dim, setDim] = useState();
 
+  // search-related
   const [weaponHash, setWeaponHash] = useState();
-  const [searchText, setSearchText] = useState("");
-  const [selectedWeapon, setSelectedWeapon] = useState();
-
-  // filters
-  const [sameType, setSameType] = useState(false);
-  const [sameDamage, setSameDamage] = useState(false);
-  const [sameFrame, setSameFrame] = useState(false);
-  const [sameName, setSameName] = useState(false);
-  const [sameAmmo, setSameAmmo] = useState(false);
-  const [newGear, setNewGear] = useState(false);
-
-  const [leniency, setLeniency] = useState(0);
-  const [weapons, setWeapons] = useState([]);
-  const [filteredWeapons, setFilteredWeapons] = useState([]);
   const [searching, setSearching] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [hoverIndex, setHoverIndex] = useState(-1);
+  const [highlightedHash, setHighlightedHash] = useState();
+
+  const [selectedWeapon, setSelectedWeapon] = useState();
+  const [leniency, setLeniency] = useState(0);
+  const [filters, setFilters] = useState({
+    sameType: false,
+    sameDamage: false,
+    sameFrame: false,
+    sameAmmo: false,
+    newGear: false,
+    sameName: false,
+  });
+
+  const [weapons, setWeapons] = useState([]);
   const [perkResults, setPerkResults] = useState();
   const [originResults, setOriginResults] = useState();
   const [modalShowing, setModalShowing] = useState(false);
-  const [dim, setDim] = useState();
-  const [fetchingDim, setFetchingDim] = useState(false);
   const [wallpaper, setWallpaper] = useState("blank.png");
   const [perkTab, setPerkTab] = useState("basic"); // basic, origin
-  const { width, height } = useWindowSize();
   const [popup, setPopup] = useState();
+  const { width, height } = useWindowSize();
 
   const checkLogin = () => {
     getLoginStatus().then(esta => {
@@ -111,14 +82,23 @@ const App = () => {
     });
   };
 
+  const updateHighlightedHash = hash => setHighlightedHash(hash);
+
   useEffect(() => {
     pollStatus();
   }, []);
 
   useEffect(() => {
     setFetchingDim(false);
-    console.log("dim", dim);
+
+    if (DEBUG) {
+      console.log("dim", dim);
+    }
   }, [dim]);
+
+  useEffect(() => {
+    setHoverIndex(-1);
+  }, [searchText]);
 
   useEffect(() => {
     if (modalShowing) {
@@ -147,7 +127,6 @@ const App = () => {
           }
         });
       }
-      // window.bungo = getInventoryUniques;
     }
   }, [statusGood]);
 
@@ -164,31 +143,11 @@ const App = () => {
   }, [weapons]);
 
   useEffect(() => {
-    if (searchText) {
-      const filtereds = weapons.filter(x => x.name.toLowerCase().includes(searchText.toLowerCase()));
-      filtereds.sort((a, b) => {
-        const nameComparison = a.name.localeCompare(b.name);
-
-        if (nameComparison !== 0) {
-          return nameComparison;
-        }
-
-        return a.season - b.season;
-      });
-      setFilteredWeapons(filtereds.slice(0, PANEL_LIMIT - 1));
-    } else {
-      setFilteredWeapons([]);
-    }
-  }, [searchText]);
-
-  useEffect(() => {
     if (weaponHash) {
       checkPerks();
     }
   }, [
-    weaponHash, sameType, sameDamage,
-    sameFrame, sameName, sameAmmo, newGear,
-    leniency
+    weaponHash, filters, leniency
   ]);
 
   useEffect(() => {
@@ -207,6 +166,7 @@ const App = () => {
       setPerkTab("basic");
       imgUrl = selectedWeapon?.images?.screenshot;
       setSearchParam("id", selectedWeapon?.itemHash);
+      setHoverIndex(-1);
     }
 
     setWallpaper(imgUrl);
@@ -226,7 +186,7 @@ const App = () => {
     setFetchingDim(true);
     if (!membershipId) {
       window.addEventListener("message", async event => {
-        if (event.origin !== NGROK_BASE) { return; }
+        if (event.origin !== HTTPS_BASE) { return; }
 
         if (event.data === "bungie-auth-success") {
           popup?.close();
@@ -278,10 +238,11 @@ const App = () => {
   const run = async() => {
     const data = await fetchPerkCombos({
       weaponHash: Number(weaponHash),
-      sameWeaponType: sameType,
-      sameDamageType: sameDamage,
-      sameFrame,
-      sameName,
+      sameWeaponType: filters.sameType,
+      sameDamageType: filters.sameDamage,
+      sameFrame: filters.sameFrame,
+      sameName: filters.sameName,
+      newGear: filters.newGear,
       leniency: Math.max(0, Number(leniency)),
     });
 
@@ -310,31 +271,10 @@ const App = () => {
     });
   };
 
-  const renderSearchPanel = () => {
-    if (!searching) { return null; }
-
-    const searchBox = document.getElementById("searchText");
-    const rect = searchBox.getBoundingClientRect();
-
-    return <div className="search-panel"
-      style={{
-        top: `calc(${rect.top}px + ${rect.height}px + 4px)`,
-        left: `calc(${rect.left}px - 4px)`,
-        width: `calc(${rect.width}px + 6px)`
-      }}>
-      {filteredWeapons.map(weapon => {
-        return <div key={weapon.itemHash} className="weapon-label" onClick={() => setWeaponHash(weapon.itemHash)}>
-          <div className="weapon-icon-holder">
-            <img className="weapon-icon" alt={weapon?.name} src={weapon?.images?.icon}></img>
-            <div className="weapon-element-shadow"></div>
-            <img className={`damage-type-icon-${weapon.damageType}`}
-              alt={weapon?.damageType} src={weapon?.images?.damageType}></img>
-            <img className="weapon-watermark" alt={"season"} src={weapon?.images?.watermark}></img>
-          </div>
-          <span>{`${weapon?.name} | Season ${weapon?.season} | ${weapon?.itemHash}`}</span>
-        </div>;
-      })}
-    </div>;
+  const updateFilters = (filterName, value) => {
+    const newFilters = { ...filters };
+    newFilters[filterName] = value;
+    setFilters(newFilters);
   };
 
   const renderPerkCombos = () => {
@@ -353,13 +293,13 @@ const App = () => {
 
     return <div className="perk-combos">
       <div className="perk-tabs">
-        {results.length > 0 && <div className="perk-section" onClick={() => setPerkTab("basic")}>
+        {basicNum > 0 && <div className="perk-section" onClick={() => setPerkTab("basic")}>
           <div title="[column 3, column 4] combos"
             className={`perk-section-text ${perkTab === 'basic' || 'perk-tab-inactive'}`}>
             {perkText}{` (${basicNum})`}
           </div>
         </div>}
-        {selectedWeapon?.originTraits?.length > 0 && <div className="perk-section" onClick={() => setPerkTab("origin")}>
+        {originNum > 0 && <div className="perk-section" onClick={() => setPerkTab("origin")}>
           <div title="[column 3/4, origin trait] combos"
             className={`perk-section-text ${perkTab === 'origin' || 'perk-tab-inactive'}`}>
             {originText}{` (${originNum})`}
@@ -409,51 +349,6 @@ const App = () => {
     </div>;
   };
 
-  const renderOptions = () => {
-    if (!selectedWeapon) { return null; }
-
-    // spiderman point meme d2 emote equivalent
-    const mirrorMirrorEmoteIcon = "https://www.bungie.net/common/destiny2_content/icons/a3794cf6feabce9c5925db522eca32b3.jpg";
-    const avantGardeIcon = "https://www.bungie.net/common/destiny2_content/icons/85104c7ab5179093b459dc0ebef2228b.png";
-    const modalIconTitle = "Check your gear for unique rolls";
-
-    return <div className="options">
-      <label className="checkbox-holder" title={`Narrow weapon scope to only ${selectedWeapon?.weaponType}s`}>
-        <input type="checkbox" checked={sameType} onChange={e => setSameType(e.target.checked)} />
-        <img className="check-image" src={selectedWeapon?.images?.weaponType} alt="gun"></img>
-      </label>
-      <label className="checkbox-holder" title={`Narrow damage type scope to only ${damageTypeMap[selectedWeapon?.damageType]}`}>
-        <input type="checkbox" checked={sameDamage} onChange={e => setSameDamage(e.target.checked)} />
-        <img className="check-image" src={selectedWeapon?.images?.damageType} alt="element"></img>
-      </label>
-      <label className="checkbox-holder" title={`Narrow frame scope to only ${selectedWeapon?.frame}s`}>
-        <input type="checkbox" checked={sameFrame} onChange={e => setSameFrame(e.target.checked)} />
-        <img className="check-image" src={selectedWeapon?.images?.frame} alt="frame"></img>
-      </label>
-      <label className="checkbox-holder" title={`Narrow ammo scope to only ${ammoTypeMap[selectedWeapon?.ammoType]} ammo`}>
-        <input type="checkbox" checked={sameAmmo} onChange={e => setSameAmmo(e.target.checked)} />
-        <img className="check-image" src={ammoTypeImgMap[selectedWeapon?.ammoType]}
-          alt="ammo"></img>
-      </label>
-      <label className="checkbox-holder" title={`Narrow gear scope to only Featured Gear`}>
-        <input type="checkbox" checked={newGear} onChange={e => setNewGear(e.target.checked)} />
-        <img className="check-image" src={avantGardeIcon}
-          alt={"new gear"}></img>
-      </label>
-      <label className="checkbox-holder" title={`Treat same-name weapon re-issues as different weapons`}>
-        <input type="checkbox" checked={sameName} onChange={e => setSameName(e.target.checked)} />
-        <img className="check-image" src={mirrorMirrorEmoteIcon}
-          alt={"revision"} style={{ borderRadius: '2px' }}></img>
-      </label>
-      <div className="modal-icon-holder" title={modalIconTitle} onClick={() => setModalShowing(true)}>
-        <div className="modal-icon-bar"></div>
-        <div className="modal-icon-bar"></div>
-        <img className="check-image modal-icon" src={"vault.svg"} alt={"Check my gear for uniques"}></img>
-        <div className="arrow-down"></div>
-      </div>
-    </div>;
-  };
-
   const renderSelectedWeapon = () => {
     if (!selectedWeapon) { return null; }
     return <div className="selected-weapon">
@@ -469,6 +364,26 @@ const App = () => {
           setSearching(true);
           ev.target.select();
         }}
+        onKeyUp={ev => {
+          switch (ev.key) {
+            case "ArrowDown":
+              ev.preventDefault();
+              setHoverIndex(hoverIndex + 1);
+              break;
+            case "ArrowUp":
+              ev.target.setSelectionRange(ev.target.value.length, ev.target.value.length);
+              if (hoverIndex > -2) {
+                setHoverIndex(hoverIndex - 1);
+              }
+              break;
+            case "Enter":
+              if (highlightedHash) {
+                setWeaponHash(highlightedHash);
+                ev.target.blur();
+              }
+            default: return;
+          }
+        }}
         onBlur={() => setTimeout(() => setSearching(false), 150)}
       />
     </div>;
@@ -479,11 +394,11 @@ const App = () => {
     const verb = leniency === 1 ? "has" : "have";
     const pluralLetter = leniency === 1 ? "" : "s";
 
-    const gunText = sameType ? `[${selectedWeapon?.weaponType}${pluralLetter}]` : gunWord;
-    const elementText = sameDamage ? `[${damageTypeMap[selectedWeapon?.damageType]}]` : "";
-    const frameText = sameFrame ? `[${selectedWeapon?.frame}]` : "";
-    const ammoText = sameAmmo ? `[${ammoTypeMap[selectedWeapon?.ammoType]} Ammo]` : "";
-    const gearText = newGear ? `[New Gear]` : "";
+    const gunText = filters.sameType ? `[${selectedWeapon?.weaponType}${pluralLetter}]` : gunWord;
+    const elementText = filters.sameDamage ? `[${damageTypeMap[selectedWeapon?.damageType]}]` : "";
+    const frameText = filters.sameFrame ? `[${selectedWeapon?.frame}]` : "";
+    const ammoText = filters.sameAmmo ? `[${ammoTypeMap[selectedWeapon?.ammoType]} Ammo]` : "";
+    const gearText = filters.newGear ? `[New Gear]` : "";
 
     const gunEl = <span className={gunText === gunWord ? "" : 'gun-helper'}>{gunText}</span>;
     const elementEl = <span className="element-helper">{elementText}</span>;
@@ -505,7 +420,7 @@ const App = () => {
 
   const renderVersion = () => {
     return <small className="app-version">
-      Version {pkg.version} | <a href="https://github.com/cecilbowen/roll-report" target="_blank">Source</a>
+      Version {pkg.version} | <a href="https://github.com/cecilbowen/roll-report" target="_blank" rel="noreferrer">Source</a>
     </small>;
   };
 
@@ -520,15 +435,18 @@ const App = () => {
           onError={ev => {
             ev.currentTarget.onerror = null;
             ev.currentTarget.src = 'blank.png';
-          }} alt="background image"></img>
+          }} alt="background"></img>
       </div>
-      {renderOptions()}
+      <Options selectedWeapon={selectedWeapon} filters={filters}
+        updateFilters={updateFilters} setModalShowing={setModalShowing} />
       <div className="framing">
         {renderSelectedWeapon()}
         {renderHelperText()}
         {renderAllPerks()}
       </div>
-      {renderSearchPanel()}
+      {<SearchResultsPanel searching={searching} weapons={weapons} updateHighlightedHash={updateHighlightedHash}
+        searchText={searchText} setWeaponHash={setWeaponHash} hoverIndex={hoverIndex}
+        setHoverIndex={setHoverIndex} />}
       <DimModal
         okText="Fetch" cancelText="Close" onCancel={() => setModalShowing(false)}
         input dim={dim} querying={fetchingDim}

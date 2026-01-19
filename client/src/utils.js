@@ -1,8 +1,79 @@
+export const STATUS_RETRY = 200;
+export const STATUS_RETRY_LIMIT = 10;
+export const DEBUG = process.env.REACT_APP_DEBUG === "true";
+
+// todo: later on post-release, >>MAYBE<< just choose random, current season, new-gear weapon
+//       instead of one of my personal picks below
+export const weaponPerDay = {
+  1: 2883684343, // Hung Jury SR4 (Adept)
+  2: 1354727549, // The Slammer (Adept)
+  3: 3019024381, // The Prophet (Adept)
+  4: 3981920134, // Aureus Neutralizer
+  5: 2575506895, // Kindled Orchid
+  6: 2226158470, // Unworthy
+  0: 1039915310 // Non-Denouement (Adept)
+};
+
+export const damageTypeMap = {
+  1: "Kinetic",
+  2: "Arc",
+  3: "Solar",
+  4: "Void",
+  5: "Raid",
+  6: "Stasis",
+  7: "Strand"
+};
+
+export const ammoTypeMap = {
+  1: "Primary",
+  2: "Special",
+  3: "Heavy"
+};
+
+export const ammoTypeImgMap = {
+  1: "https://www.bungie.net/common/destiny2_content/icons/99f3733354862047493d8550e46a45ec.png",
+  2: "https://www.bungie.net/common/destiny2_content/icons/d920203c4fd4571ae7f39eb5249eaecb.png",
+  3: "https://www.bungie.net/common/destiny2_content/icons/78ef0e2b281de7b60c48920223e0f9b1.png"
+};
+
+// spiderman point meme d2 emote equivalent
+const mirrorMirrorEmoteIcon = "https://www.bungie.net/common/destiny2_content/icons/a3794cf6feabce9c5925db522eca32b3.jpg";
+const avantGardeIcon = "https://www.bungie.net/common/destiny2_content/icons/85104c7ab5179093b459dc0ebef2228b.png";
+
+export const getFilterDesc = (name, weapon) => {
+  const desc = {
+    sameType: `Narrow weapon scope to only ${weapon?.weaponType}s`,
+    sameDamage: `Narrow damage type scope to only ${damageTypeMap[weapon?.damageType]}`,
+    sameFrame: `Narrow frame scope to only ${weapon?.frame}s`,
+    sameAmmo: `Narrow ammo scope to only ${ammoTypeMap[weapon?.ammoType]} ammo`,
+    newGear: "Narrow gear scope to only Featured Gear",
+    sameName: "Treat same-name weapon re-issues as different weapons"
+  };
+
+  return desc[name];
+};
+
+export const getFilterIcon = (name, weapon) => {
+  const icons = {
+    sameType: weapon?.images?.weaponType,
+    sameDamage: weapon?.images?.damageType,
+    sameFrame: weapon?.images?.frame,
+    sameAmmo: ammoTypeImgMap[weapon?.ammoType],
+    newGear: avantGardeIcon,
+    sameName: mirrorMirrorEmoteIcon
+  };
+
+  return icons[name];
+};
+
+export const getWrappedIndex = (arr, index) => {
+  if (!Array.isArray(arr) || arr.length === 0) { return index; }
+  return index % arr.length;
+};
+
 const fallbackCopyTextToClipboard = text => {
   const textArea = document.createElement("textarea");
   textArea.value = text;
-
-  // Avoid scrolling to bottom
   textArea.style.top = "0";
   textArea.style.left = "0";
   textArea.style.position = "fixed";
@@ -38,49 +109,32 @@ export const copyTextToClipboard = text => {
 };
 
 export const getSpaceToViewportBottom = elementId => {
-  // 1. Get the element by its ID
   const element = document.getElementById(elementId);
   if (!element) {
     console.error('Element not found');
     return null;
   }
 
-  // 2. Get the element's position and dimensions relative to the viewport
   const rect = element.getBoundingClientRect();
-
-  // 'rect.top' gives the distance from the top of the viewport to the top of the div
   const distanceToViewportTop = rect.top;
-
-  // 3. Get the total height of the viewport
   const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-  // Use document.documentElement.clientHeight as a fallback for older browsers
-
-  // 4. Calculate the height between the top of the div and the bottom of the screen
   const heightToBottom = viewportHeight - distanceToViewportTop;
 
   return heightToBottom;
 };
 
 export const getSpaceToWindowBottom = elementId => {
-  // 1. Get the element by its ID
   const element = document.getElementById(elementId);
   if (!element) {
     console.error("Element not found!");
     return null;
   }
 
-  // 2. Get the element's position relative to the viewport
   const rect = element.getBoundingClientRect();
-  const elementTopInViewport = rect.top; // Distance from the top of the viewport to the top of the element
-
-  // 3. Get the current vertical scroll position of the window
+  const elementTopInViewport = rect.top;
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-  // 4. Calculate the element's distance from the top of the document
   const elementTopInDocument = elementTopInViewport + scrollTop;
 
-  // 5. Get the total height of the document
-  // This approach is widely compatible
   const documentHeight = Math.max(
     document.body.scrollHeight,
     document.documentElement.scrollHeight,
@@ -90,7 +144,6 @@ export const getSpaceToWindowBottom = elementId => {
     document.documentElement.clientHeight
   );
 
-  // 6. Calculate the final distance from the top of the div to the bottom of the page
   const distance = documentHeight - elementTopInDocument;
 
   return distance;

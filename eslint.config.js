@@ -89,7 +89,7 @@ module.exports = [
         'no-new': ERROR,
         'no-octal-escape': ERROR,
         'no-param-reassign': OFF,
-        'no-process-env': WARN,
+        'no-process-env': OFF,
         'no-proto': ERROR,
         'no-redeclare': ERROR,
         'no-return-assign': ERROR,

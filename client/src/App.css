@@ -14,44 +14,25 @@ html, body {
 }
 
 body {
-  /* overflow-y: hidden; */ /* this is going to cause some bs */
   background-color: var(--bg-black);
 }
 
 .app {
-  /* background-color: var(--bg-black); */
   position: relative;
-  /* background-size: 100% auto;
-  background-image: url(../public/blank.png);
-  background-repeat: no-repeat;
-  background-position: top center; */
   width: 100%;
   height: 100%;
-  /* aspect-ratio: 16 / 9; */
-
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
-/* .app::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: calc(100% - (100vw * 9 / 16));
-  height: 10%;
-  pointer-events: none;
-  background: linear-gradient( to bottom, rgba(18,18,18,0), var(--bg-black) );
-} */
 
 .framing {
-  /* padding: 1em; */
   height: 100%;
-
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  row-gap: 2em;
 }
 
 .col-container {
@@ -76,16 +57,13 @@ body {
   margin-top: 2em;
   max-width: 90%;
   min-height: 0;
-  /* max-height: calc(100vh - 35%); */
   padding-left: 1em;
   z-index: 1;
   position: relative;
   flex-wrap: wrap;
   row-gap: 1em;
-
   flex: 1;
   min-height: 0;
-  /* overflow: hidden; */
 }
 .perk-combos {
   display: flex;
@@ -97,8 +75,6 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  /* max-width: min(830px, 95%); */
-  /* margin-top: 20px; */
 }
 .combo-container {
   max-height: 540px;
@@ -141,7 +117,7 @@ body {
   color: var(--txt-white);
   border-bottom: 1px dashed #333;
 }
-.weapon-label:hover {
+.weapon-label:hover, .weapon-label-highlight {
   background-color: #242e31;
   border-radius: 8px;
 }
@@ -200,7 +176,7 @@ body {
   text-shadow: 2px 2px 2px black;
   font-size: 18px;
   letter-spacing: -.005em;
-  margin: 1.675em 4.5em 1em 1em;
+  margin: 0em 4.5em 0em 1em;
   color: rgba(255, 255, 255, 0.8);
   font-style: italic;
   z-index: 1;
@@ -210,9 +186,7 @@ body {
   max-width: 30em;
 }
 .gun-helper, .element-helper, .frame-helper, .ammo-helper, .gear-helper {
-  /* font-weight: bold; */
   font-style: normal;
-  /* text-decoration: underline; */
   color: #ffefb2;
 }
 
@@ -234,7 +208,6 @@ body {
   top: 0px;
   left: 0px;
   aspect-ratio: inherit;
-  /* padding: 1em; */
 }
 
 .ss-holder {
@@ -242,9 +215,9 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100vh;     /* clamp to viewport height */
-  overflow: hidden;  /* 🔥 prevents scrollbar from tall image */
-  z-index: -1;       /* behind everything */
+  height: 100vh;
+  overflow: hidden;
+  z-index: -1;
   background: var(--bg-dull);
 }
 .screenshot {
@@ -254,11 +227,9 @@ body {
   z-index: -100;
   display: block;
   width: 100%;
-  height: auto;           /* keeps aspect ratio */
+  height: auto;
   object-fit: contain;
   object-position: top center;
-
-  /* fade bottom 20% */
   -webkit-mask-image: linear-gradient(to bottom, #000 80%, transparent 100%);
   mask-image: linear-gradient(to bottom, var(--bg-dull) 80%, transparent 100%);
 }
@@ -267,7 +238,6 @@ hr.solid {
   border-top: 0.5px solid #bbb;
   width: 85%;
   margin-left: 0px;
-  /* max-width: min(760px, 95%); */
   transform: translateY(1px);
 }
 
@@ -277,7 +247,6 @@ hr.solid {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-  /* margin-left: 6px; */
 }
 .perk-tabs {
   display: flex;
@@ -298,12 +267,10 @@ hr.solid {
   color: #9f9f9f !important;
 }
 .perk-section > :not(.perk-tab-inactive) {
-  /* text-decoration: overline; */
   color: black;
 }
 .perk-section:has(.perk-section-text:not(.perk-tab-inactive)) {
   background-color: #bbb !important;
-  /* background: linear-gradient(239deg, rgb(119, 117, 104) 0%, rgb(77, 77, 77) 65%); */
 }
 .perk-section:has(.perk-section-text.perk-tab-inactive):hover {
   background-color: #6e6e6e !important;
@@ -330,7 +297,6 @@ hr.solid {
   z-index: 1;
   opacity: .8;
   word-spacing: .01em;
-  /* line-height: 0.125em; */
   line-height: 0px;
   text-transform: uppercase;
   margin-left: 7px;
@@ -339,7 +305,6 @@ hr.solid {
   white-space: nowrap;
 }
 .perk-tab-inactive:hover {
-  /* text-shadow: #ffffff85 1px 0 10px !important; */
   color: #999595 !important;
 }
 
@@ -363,11 +328,6 @@ hr.solid {
   padding: 4px;
   cursor: pointer;
 }
-
-/* .perk-icon:hover {
-  background-color: #81cce5;
-  border-color: gold;
-} */
 
 .left-col {
   display: flex;
@@ -396,7 +356,6 @@ hr.solid {
 }
 
 .perk-icon-single {
-  /* background-color: black; */
   border-radius: 50px;
   width: 30px;
   border: 2px inset white;
@@ -414,7 +373,6 @@ hr.solid {
 
 .weapon-wallpaper {
   position: relative;
-  /* max-width: min(1200px, 100%); */
 }
 
 .options {
@@ -440,6 +398,9 @@ hr.solid {
   height: 26px;
   align-self: center;
 }
+.options > label.checkbox-holder:last-of-type img.check-image {
+  border-radius: 4px;
+}
 .leniency-input {
   width: 30px;
   background-color: #00000054;
@@ -460,7 +421,6 @@ hr.solid {
   right: 15px;
 }
 .modal-icon-holder:hover * {
-  /* filter: saturate(100); */
   filter: drop-shadow(0px 0px 3px var(--txt-white));
 }
 .modal-icon-holder:active * {
@@ -537,7 +497,6 @@ hr.solid {
   color: gray;
 }
 .btn-close {
-  /* background-color: crimson !important; */
   margin-left: auto;
 }
 .btn-dim {
@@ -655,7 +614,6 @@ hr.solid {
   font-family: NeueHaasDisplayLight;
   font-size: 18px;
   background-color: white;
-  /* margin-bottom: 1em; */
   width: 50%;
   min-width: 10em;
   flex: 0 1 auto;

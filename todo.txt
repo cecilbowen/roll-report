@@ -4,18 +4,19 @@ x: done
 
 want to get done:
 ------------------
-- make mobile UI work/look better overall
+x make mobile UI work/look better overall
     x modal bad on mobile 
     / alternative options placement
-- make sure UI in general is display-size agnostic (dynamic)
+- add loading spinner to modal when fetching dim query
+x make sure UI in general is display-size agnostic (dynamic)
     - perk bubble size scale with display size (relative to wallpaper)
     / update when to show scroll indicator arrows
     x loading screen if waiting on buildWeaponIndex
-- implement Bungie Login to allow non-public vault checks
+x implement Bungie Login to allow non-public vault checks
     - detect if user uses the bungie name fetch while already logged in and with own name;
       if true, then it should pull inv as if they hit the "Bungie Login"/"Get Rolls"
 - add more server logging
-- figure out what /me inventory fetch pull only public gear that one time
+- figure out what made an authorized /me inventory fetch pull only public gear that one time
 x add query param for initial page weapon so links can be shared
 x dim modal input validator
 x ammo type filter
@@ -36,4 +37,8 @@ code-related cleanup:
 - change some of the backend throws into better error handling than just "oops, error, crash the backend!"
 x run buildWeaponIndex on backend start, not first client connect
 - separate App.js into different components
+    x search results panel 
+    x options 
+    - perk combos 
+    - selected weapon 
 x re-enable eslint (still in top-level folder, instead of inside both client and server)
