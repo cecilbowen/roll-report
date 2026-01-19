@@ -7,7 +7,7 @@ want to get done:
 x make mobile UI work/look better overall
     x modal bad on mobile 
     / alternative options placement
-- add loading spinner to modal when fetching dim query
+x add loading spinner to modal when fetching dim query
 x make sure UI in general is display-size agnostic (dynamic)
     - perk bubble size scale with display size (relative to wallpaper)
     / update when to show scroll indicator arrows

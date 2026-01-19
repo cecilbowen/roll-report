@@ -172,8 +172,8 @@ const App = () => {
     setWallpaper(imgUrl);
   }, [selectedWeapon]);
 
-  const clearDim = () => {
-    setDim({ fail: true });
+  const clearDim = reason => {
+    setDim({ fail: true, reason });
     setFetchingDim(false);
   };
 
@@ -267,7 +267,7 @@ const App = () => {
       }
     }).catch(err => {
       console.error("error fetching dim query", err);
-      clearDim();
+      clearDim(err?.message?.includes("No Destiny memberships found") ? "invalid user" : undefined);
     });
   };
 
