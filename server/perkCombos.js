@@ -265,6 +265,7 @@ export const createPerkComboService = ({ db }) => {
         name: def.displayProperties?.name || String(def.hash),
         images,
         season: watermarkToSeason[def?.iconWatermark],
+        isFeaturedItem: def?.isFeaturedItem,
         weaponType,
         damageType: getDamageTypeIndex(def),
         frame: getFrameName(def),
