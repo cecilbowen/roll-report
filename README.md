@@ -1,6 +1,6 @@
 # Roll Report
 
-This app lets you find out which weapons in Destiny 2 have one-of-a-kind rolls.  Search the weapon you want and the app will show you which of it's perk combinations are truly unique to that weapon.  It will show you both unique `[column3, column 4]` combos *and* unique `[column 3/4, origin trait]` combos.  For example, when looking at Unworthy, `[Firefly, Voltshot]` is a `[column 3, column 4]` roll, and both `[Firefly, Subjugation]` and `[Voltshot, Subjugation]` are respectively listed as unique `[column 3, origin trait]` and `[column 4, origin trait]` rolls.
+This app helps you find one-of-a-kind Destiny 2 weapon rolls.  Search the weapon you want and the app will show you which of it's perk combinations are truly unique to that weapon.  It will show you both unique `[column3, column 4]` combos *and* unique `[column 3/4, origin trait]` combos.  For example, when looking at Unworthy, `[Firefly, Voltshot]` is a unique `[column 3, column 4]` roll, and both `[Firefly, Subjugation]` and `[Voltshot, Subjugation]` are respectively listed as unique `[column 3, origin trait]` and `[column 4, origin trait]` rolls.
 
 ### Check it out here: [roll.report](https://www.roll.report).
 
