@@ -92,6 +92,17 @@ export const loginWithBungie = () => {
 };
 
 export const getLoginStatus = async() => {
-  const r = await fetch(`${HTTPS_BASE}/api/me`, { credentials: "include" });
-  return await r.json(); // if 401, treat as logged out
+  let ret = { loggedIn: false };
+  try {
+    const r = await fetch(`${HTTPS_BASE}/api/me`, { credentials: "include" });
+    ret = await r.json(); // if 401, treat as logged out
+  } catch (error) {
+    // either cors (404) or etc, not logged in either way
+
+    if (DEBUG) {
+      console.log('/me status failed (not logged in)');
+    }
+  }
+
+  return ret;
 };

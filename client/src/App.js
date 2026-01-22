@@ -11,6 +11,7 @@ import useWindowSize from './hooks/useWindowSize';
 import Loading from './components/Loading';
 import {
   ammoTypeMap, damageTypeMap, DEBUG,
+  getRandomFeaturedWeaponHash,
   getSearchParam, setSearchParam, STATUS_RETRY,
   STATUS_RETRY_LIMIT, weaponPerDay
 } from './utils';
@@ -139,6 +140,7 @@ const App = () => {
         setWeaponHash(potHash);
       } else {
         setWeaponHash(weaponPerDay[new Date().getDay()]);
+        // setWeaponHash(getRandomFeaturedWeaponHash(weapons)); // not yet
       }
     }
   }, [weapons]);
@@ -250,10 +252,27 @@ const App = () => {
     if (DEBUG) {
       console.log("PERK COMBO RESULTS:", data);
     }
-    setPerkResults(data?.results?.filter(x => !disabledPerks.includes(x?.perk3?.hash) && !disabledPerks.includes(x?.perk4?.hash)));
-    setOriginResults(
-      data?.originResults?.filter(x => !disabledPerks.includes(x?.perk3?.hash) && !disabledPerks.includes(x?.perk4?.hash))
+
+    const newPerkResults = data?.results?.filter(
+      x => !disabledPerks.includes(x?.perk3?.hash) && !disabledPerks.includes(x?.perk4?.hash)
     );
+    const newOriginResults = data?.originResults?.filter(
+      x => !disabledPerks.includes(x?.perk3?.hash) && !disabledPerks.includes(x?.perk4?.hash)
+    );
+
+    setPerkResults(newPerkResults);
+    setOriginResults(newOriginResults);
+
+    const basicNum = newPerkResults?.filter(x => x.isUniqueWithinLeniency)?.length ?? 0;
+    const originNum = newOriginResults?.filter(x => x.isUniqueWithinLeniency)?.length ?? 0;
+
+    // if only origin trait unique rolls, auto-swap to that tab
+    if (basicNum === 0 && originNum > 0) {
+      setPerkTab("origin");
+    // handle if we, for example, blacklist origin traits to make no origin results while on the origin tab
+    } else if (originNum === 0 && perkTab === "origin") {
+      setPerkTab("basic");
+    }
   };
 
   const queueDimQuery = bungieName => {
@@ -394,6 +413,7 @@ const App = () => {
                 setWeaponHash(highlightedHash);
                 ev.target.blur();
               }
+              break;
             default: return;
           }
         }}

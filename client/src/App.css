@@ -585,6 +585,9 @@ hr.solid {
   width: 120px;
   height: 120px;
 }
+.modal-badge-alt {
+  visibility: hidden;
+}
 .modal-content {
   display: flex;
   flex-direction: column;
@@ -672,15 +675,25 @@ hr.solid {
   width: 120px;
   height: 120px;
 }
+.dim-loader-holder-alt {
+  /* mask-image: url(../public/dim.png); */
+  mask-repeat: no-repeat;
+  mask-position: center;
+}
 .dim-loader {
+  display: flex;
   border: 16px solid #f3f3f300;
   border-radius: 50%;
   border-top: 16px solid #121213;
   width: 15px;
   height: 15px;
   animation: spin 0.8s linear infinite;
-  display: flex;
   scale: 3;
+}
+.dim-loader-alt {
+  border-top: 16px solid #f37320;
+  animation: spin 1s linear infinite;
+  scale: 2;
 }
 .dim-loader-text {
   font-family: NeueHaasDisplayMediu;

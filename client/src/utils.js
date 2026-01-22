@@ -2,12 +2,16 @@ export const STATUS_RETRY = 200;
 export const STATUS_RETRY_LIMIT = 10;
 export const DEBUG = process.env.REACT_APP_DEBUG === "true";
 
+// spiderman point meme d2 emote equivalent
+const mirrorMirrorEmoteIcon = "https://www.bungie.net/common/destiny2_content/icons/a3794cf6feabce9c5925db522eca32b3.jpg";
+const avantGardeIcon = "https://www.bungie.net/common/destiny2_content/icons/85104c7ab5179093b459dc0ebef2228b.png";
+
 // todo: later on post-release, >>MAYBE<< just choose random, current season, new-gear weapon
-//       instead of one of my personal picks below
+//       instead of some of my personal picks below
 export const weaponPerDay = {
   1: 2883684343, // Hung Jury SR4 (Adept)
   2: 1354727549, // The Slammer (Adept)
-  3: 3019024381, // The Prophet (Adept)
+  3: 3692140710, // Long Arm (Adept)
   4: 3981920134, // Aureus Neutralizer
   5: 2575506895, // Kindled Orchid
   6: 2226158470, // Unworthy
@@ -36,9 +40,11 @@ export const ammoTypeImgMap = {
   3: "https://www.bungie.net/common/destiny2_content/icons/78ef0e2b281de7b60c48920223e0f9b1.png"
 };
 
-// spiderman point meme d2 emote equivalent
-const mirrorMirrorEmoteIcon = "https://www.bungie.net/common/destiny2_content/icons/a3794cf6feabce9c5925db522eca32b3.jpg";
-const avantGardeIcon = "https://www.bungie.net/common/destiny2_content/icons/85104c7ab5179093b459dc0ebef2228b.png";
+export const getRandomFeaturedWeaponHash = weapons => {
+  if (!weapons) { return undefined; }
+  const justFeatureds = weapons.filter(x => x.isFeaturedItem);
+  return justFeatureds[~~(justFeatureds.length * Math.random())]?.itemHash;
+};
 
 export const getFilterDesc = (name, weapon) => {
   const desc = {
