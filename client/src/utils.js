@@ -10,12 +10,12 @@ const avantGardeIcon = "https://www.bungie.net/common/destiny2_content/icons/851
 //       instead of some of my personal picks below
 export const weaponPerDay = {
   1: 2883684343, // Hung Jury SR4 (Adept)
-  2: 1354727549, // The Slammer (Adept)
+  2: 3481382332, // King Orfeo
   3: 3692140710, // Long Arm (Adept)
   4: 3981920134, // Aureus Neutralizer
   5: 2575506895, // Kindled Orchid
   6: 2226158470, // Unworthy
-  0: 1039915310 // Non-Denouement (Adept)
+  0: 1354727549 // The Slammer (Adept)
 };
 
 export const damageTypeMap = {
