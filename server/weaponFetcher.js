@@ -99,7 +99,7 @@ const getMembershipFromId = async({ membershipId }) => {
   }
 
   if (response?.destinyMemberships?.length > 1) {
-    console.warn(">1 destiny memberships but no primaryMembershipId (weird?)");
+    console.warn(`>1 destiny memberships but no primaryMembershipId (weird?) - membershipId: ${membershipId}`);
   }
 
   return membership;

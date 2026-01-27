@@ -216,7 +216,7 @@ const App = () => {
     } else {
       getMyInventoryUniques().then(rsp => {
         if (rsp?.success) {
-          console.log("successfully pulled authenticated inv!");
+          console.log("successfully pulled authenticated inv!!");
           setDim({
             text: rsp.text,
             amount: rsp.amount

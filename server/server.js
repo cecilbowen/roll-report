@@ -1,5 +1,5 @@
 /* eslint-disable consistent-return */
-/* eslint-disable no-process-env */
+
 import 'dotenv/config';
 import express from "express";
 import cors from "cors";
@@ -27,6 +27,11 @@ const PORT = process.env.PORT ? Number(process.env.PORT) : 3001;
 const API_KEY = process.env.BUNGIE_API_KEY; // only on server
 const CACHE_DIR = process.env.D2_MANIFEST_DIR || "./.d2manifest";
 const LANG = process.env.D2_LANG || "en";
+
+// some stats
+let privateCounter = 0;
+let publicCounter = 0;
+let loginCounter = 0;
 
 if (!API_KEY) {
   throw new Error("Missing BUNGIE_API_KEY");
@@ -271,7 +276,23 @@ app.get("/api/inventory-uniques", async(req, res) => {
   }
 
   try {
-    const out = await perkSvc.callInventory({ bungieName: req.query.bungieName });
+    // get session from session id.  this will include bungie name/code
+    // if bungieName player sent matches bungieName/code stored with the session,
+    // then go ahead and do a full private fetch
+    let out;
+
+    const sid = req.cookies?.d2sid;
+    const s = await getValidAccessTokenAndMembershipIdForSession(sid);
+    if (!s || !s.accessToken && !s.membershipId || req.query.bungieName !== `${s.bungieName}#${s.bungieCode}`) {
+      // just do regular, public fetch (equipped gear only)
+      publicCounter++;
+      console.log(`${req.query.bungieName} - public fetch #${publicCounter}`);
+      out = await perkSvc.callInventory({ bungieName: req.query.bungieName });
+    } else {
+      privateCounter++;
+      console.log(`${s.bungieName}#${s.bungieCode} - private fetch #${privateCounter}`);
+      out = await perkSvc.callInventory({ accessToken: s.accessToken, membershipId: s.membershipId });
+    }
 
     res.json(out);
   } catch (e) {
@@ -289,13 +310,12 @@ app.get("/api/inventory-uniques/me", async(req, res) => {
     const sid = req.cookies?.d2sid;
     if (!sid) { return res.status(401).json({ error: "Not logged in" }); }
 
-    // const sess = sessions.get(sid);
-    // if (!sess) { return res.status(401).json({ error: "Session expired" }); }
-
     // if expired: refresh using sess.refresh_token, update DB
-    const { accessToken, membershipId } = await getValidAccessTokenAndMembershipIdForSession(sid);
+    const { accessToken, membershipId, bungieName, bungieCode } = await getValidAccessTokenAndMembershipIdForSession(sid);
     if (!accessToken || !membershipId) { return res.status(401).json({ error: "Session expired" }); }
 
+    privateCounter++;
+    console.log(`${bungieName}#${bungieCode} - private fetch #${privateCounter}`);
     const out = await perkSvc.callInventory({ accessToken, membershipId });
 
     res.json(out);
@@ -337,6 +357,24 @@ app.get("/api/me", (req, res) => {
   });
 });
 
+const getBungieNameFromMembershipId = async membershipId => {
+  try {
+    const { destinyMemberships } = await bungieGet(`/User/GetMembershipsById/${membershipId}/-1/`);
+    const ship = destinyMemberships.filter(x => x.bungieGlobalDisplayName && x.bungieGlobalDisplayNameCode)[0];
+    return {
+      bungieName: ship?.bungieGlobalDisplayName,
+      bungieCode: ship?.bungieGlobalDisplayNameCode
+    };
+  } catch (e) {
+    console.log(`getBungieNameFromMembershipId(${membershipId}) error:`, e);
+  }
+
+  return {
+    bungieName: "",
+    bungieCode: 0
+  };
+};
+
 // Bungie OAUTH ///////////////////////////////////////////////////////////////////////////////
 
 const getSession = sid => {
@@ -376,7 +414,12 @@ const getValidAccessTokenAndMembershipIdForSession = async sid => {
   const safetyWindow = 30; // seconds
 
   if (sess.expires_at && nowSec < sess.expires_at - safetyWindow) {
-    return { accessToken: sess.access_token, membershipId: sess.membership_id };
+    return {
+      accessToken: sess.access_token,
+      membershipId: sess.membership_id,
+      bungieName: sess.bungieName,
+      bungieCode: sess.bungieCode
+    };
   }
 
   const refreshed = await refreshBungieToken(sess.refresh_token);
@@ -396,7 +439,9 @@ const getValidAccessTokenAndMembershipIdForSession = async sid => {
 
   return {
     accessToken: refreshed.access_token,
-    membershipId: refreshed.membership_id
+    membershipId: refreshed.membership_id,
+    bungieName: sess.bungieName,
+    bungieCode: sess.bungieCode
   };
 };
 
@@ -465,6 +510,8 @@ router.get("/auth/bungie/callback", async(req, res) => {
       - membership_id
     */
 
+    const { bungieName, bungieCode } = await getBungieNameFromMembershipId(tokenData.membership_id);
+
     const nowMs = Date.now();
     const nowSec = Math.floor(nowMs / 1000);
     const expiresAt = nowSec + Number(tokenData.expires_in || 0);
@@ -478,6 +525,7 @@ router.get("/auth/bungie/callback", async(req, res) => {
       expires_at: expiresAt,
       created_at: nowMs,
       session_expires_at: nowMs + SESSION_TTL_MS,
+      bungieName, bungieCode
     });
 
     res.cookie("d2sid", sessionId, {
@@ -489,6 +537,8 @@ router.get("/auth/bungie/callback", async(req, res) => {
     // console.log(`session id: ${sessionId}`);
 
     // res.redirect(`${process.env.FRONTEND_URL}/auth/success`);
+    loginCounter++;
+    console.log(`${bungieName}#${bungieCode} successfully logged in (#${loginCounter}).`);
     res.send(`
     <script>
       if (window.opener) {

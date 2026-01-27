@@ -64,7 +64,7 @@ export const getInventoryUniques = async bungieName => {
     bungieName,
   });
 
-  const r = await fetch(`${SERVER_BASE}/api/inventory-uniques?${params.toString()}`);
+  const r = await fetch(`${HTTPS_BASE}/api/inventory-uniques?${params.toString()}`, { credentials: 'include' });
   if (!r.ok) {
     const t = await r.text();
     throw new Error(`weapons failed: ${r.status} ${t.slice(0, 200)}`);

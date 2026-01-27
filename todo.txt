@@ -12,13 +12,16 @@ x make mobile UI work/look better overall
 x add loading spinner to modal when fetching dim query
 x make sure UI in general is display-size agnostic (dynamic)
     - perk bubble size scale with display size (relative to wallpaper)
-    / update when to show scroll indicator arrows
     x loading screen if waiting on buildWeaponIndex
 x implement Bungie Login to allow non-public vault checks
-    - detect if user uses the bungie name fetch while already logged in and with own name;
+    x detect if user uses the bungie name fetch while already logged in and with own name;
       if true, then it should pull inv as if they hit the "Bungie Login"/"Get Rolls"
 - add more server logging
-- figure out what made an authorized /me inventory fetch pull only public gear that one time
+    x log each private/public pull
+    x log each login 
+x figure out what made an authorized /me inventory fetch pull only public gear that one time
+    - fetch your bungie name, get only equipped results, then immediately login to get real results:
+      it still returns equipped results.  a timeout would fix it, probably some sort of race condition
 x add query param for initial page weapon so links can be shared
 x dim modal input validator
 x ammo type filter
@@ -29,8 +32,8 @@ x show combo amount in parenthesis next to "tab" name
 x add weapon icon watermarks
 x update background color behind wallpaper and app::after fade to match (close) to wallpaper gradient
 x unify search panel weapon icon element icon positions
-- if was on tab with results, then filtered out a perk, app should swap to origin perk tab if it has results (if only one tab with results, swap to it)
-- arrow keys to move through guns in search panel quicker
+x if was on tab with results, then filtered out a perk, app should swap to origin perk tab if it has results (if only one tab with results, swap to it)
+x arrow keys to move through guns in search panel quicker
 - ENTER functionality on modal input
 - make dim export take user's filter into account, but also update message in modal to notify user this will happen
 - add last tool updated date as a title attribute when hovering on the version text 
