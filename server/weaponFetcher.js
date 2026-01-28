@@ -1,4 +1,4 @@
-import { formatDate } from "./util";
+import { formatDate } from './util.js';
 
 const BUNGIE_API_BASE = "https://www.bungie.net/Platform";
 
