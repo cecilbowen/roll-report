@@ -1,3 +1,5 @@
+import { formatDate } from "./util";
+
 const BUNGIE_API_BASE = "https://www.bungie.net/Platform";
 
 const PROFILE_COMPONENTS = [
@@ -90,16 +92,23 @@ const getMembershipFromId = async({ membershipId }) => {
 
   const membership = {};
 
+  let primaryIdFound = false;
+
   if (idToCheck) {
-    membership.membershipType = response?.destinyMemberships?.filter(x => x.membershipId === idToCheck)?.[0]?.membershipType;
+    const foundType = response?.destinyMemberships?.filter(x => x.membershipId === idToCheck)?.[0]?.membershipType;
+    membership.membershipType = foundType;
     membership.membershipId = idToCheck;
+
+    if (foundType) {
+      primaryIdFound = true;
+    }
   } else {
     membership.membershipType = response?.destinyMemberships?.[0]?.membershipType;
     membership.membershipId = response?.destinyMemberships?.[0]?.membershipId;
   }
 
-  if (response?.destinyMemberships?.length > 1) {
-    console.warn(`>1 destiny memberships but no primaryMembershipId (weird?) - membershipId: ${membershipId}`);
+  if (!primaryIdFound && response?.destinyMemberships?.length > 1) {
+    console.warn(`[${formatDate()}]: >1 destiny memberships but no primaryMembershipId (weird?) - membershipId: ${membershipId}`);
   }
 
   return membership;

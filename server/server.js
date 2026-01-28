@@ -11,6 +11,7 @@ import yauzl from "yauzl";
 import { createPerkComboService } from "./perkCombos.js";
 import crypto from "crypto";
 import cookieParser from "cookie-parser";
+import { formatDate } from './util.js';
 
 const router = express.Router();
 
@@ -286,11 +287,11 @@ app.get("/api/inventory-uniques", async(req, res) => {
     if (!s || !s.accessToken && !s.membershipId || req.query.bungieName !== `${s.bungieName}#${s.bungieCode}`) {
       // just do regular, public fetch (equipped gear only)
       publicCounter++;
-      console.log(`${req.query.bungieName} - public fetch #${publicCounter}`);
+      console.log(`[${formatDate()}]: ${req.query.bungieName} - public fetch #${publicCounter}`);
       out = await perkSvc.callInventory({ bungieName: req.query.bungieName });
     } else {
       privateCounter++;
-      console.log(`${s.bungieName}#${s.bungieCode} - private fetch #${privateCounter}`);
+      console.log(`[${formatDate()}]: ${s.bungieName}#${s.bungieCode} - private fetch #${privateCounter}`);
       out = await perkSvc.callInventory({ accessToken: s.accessToken, membershipId: s.membershipId });
     }
 
@@ -315,7 +316,7 @@ app.get("/api/inventory-uniques/me", async(req, res) => {
     if (!accessToken || !membershipId) { return res.status(401).json({ error: "Session expired" }); }
 
     privateCounter++;
-    console.log(`${bungieName}#${bungieCode} - private fetch #${privateCounter}`);
+    console.log(`[${formatDate()}]: ${bungieName}#${bungieCode} - private fetch #${privateCounter}`);
     const out = await perkSvc.callInventory({ accessToken, membershipId });
 
     res.json(out);
@@ -538,7 +539,7 @@ router.get("/auth/bungie/callback", async(req, res) => {
 
     // res.redirect(`${process.env.FRONTEND_URL}/auth/success`);
     loginCounter++;
-    console.log(`${bungieName}#${bungieCode} successfully logged in (#${loginCounter}).`);
+    console.log(`[${formatDate()}]: ${bungieName}#${bungieCode} successfully logged in (#${loginCounter}).`);
     res.send(`
     <script>
       if (window.opener) {
