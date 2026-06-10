@@ -452,7 +452,9 @@ const App = () => {
   };
 
   const renderVersion = () => {
-    return <small className="app-version">
+    const lastD2Update = "June 9, 2026"; // should prob store this in package.json or somewhere
+
+    return <small className="app-version" title={lastD2Update}>
       Version {pkg.version} | <a href="https://github.com/cecilbowen/roll-report" target="_blank" rel="noreferrer">Source</a>
     </small>;
   };
