@@ -144,7 +144,7 @@ export const createPerkComboService = ({ db }) => {
       const ps = getPlugSet(socketEntry.randomizedPlugSetHash);
       const items = ps?.reusablePlugItems || [];
       for (const p of items) {
-        if (p?.plugItemHash /* && p?.currentlyCanRoll */) { // disabled until bungie fixes
+        if (p?.plugItemHash && p?.currentlyCanRoll) {
           const invItem = getInv(p.plugItemHash);
           if (p.plugItemHash === 2503665585 || p.plugItemHash === 469511105) { // skip "Empty Traits Socket"
             continue;
