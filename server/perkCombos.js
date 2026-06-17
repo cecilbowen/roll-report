@@ -116,7 +116,7 @@ export const createPerkComboService = ({ db }) => {
     //       it's possible to have both defined, in which case, maybe one array is empty and the other is not.
     //       probably not, though...
     const myPlug = originEntry?.reusablePlugSetHash ? getPlugSet(originEntry?.reusablePlugSetHash) : undefined;
-    const hashList = myPlug?.reusablePlugItems || originEntry?.reusablePlugItems;
+    const hashList = originEntry?.reusablePlugItems || myPlug?.reusablePlugItems;
 
     return hashList.map(x => getPerk(x.plugItemHash, true)).filter(x => x);
   };
@@ -146,7 +146,8 @@ export const createPerkComboService = ({ db }) => {
       for (const p of items) {
         if (p?.plugItemHash && p?.currentlyCanRoll) {
           const invItem = getInv(p.plugItemHash);
-          if (p.plugItemHash === 2503665585 || p.plugItemHash === 469511105) { // skip "Empty Traits Socket"
+          // skip "Empty Traits Socket" and "Empty Origins Socket"
+          if (p.plugItemHash === 2503665585 || p.plugItemHash === 469511105 || p.plugItemHash === 2542427991) {
             continue;
           }
           if (invItem?.inventory.tierType > 2) { continue; } // skip enhanced perks

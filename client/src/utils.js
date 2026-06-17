@@ -9,13 +9,13 @@ const avantGardeIcon = "https://www.bungie.net/common/destiny2_content/icons/851
 // todo: later on post-release, >>MAYBE<< just choose random, current season, new-gear weapon
 //       instead of some of my personal picks below
 export const weaponPerDay = {
-  1: 2883684343, // Hung Jury SR4 (Adept)
-  2: 3481382332, // King Orfeo
-  3: 3692140710, // Long Arm (Adept)
-  4: 3981920134, // Aureus Neutralizer
-  5: 2575506895, // Kindled Orchid
-  6: 2226158470, // Unworthy
-  0: 1354727549 // The Slammer (Adept)
+  1: 2979764077, // No Feelings
+  2: 1541324871, // Refusal of the Call
+  3: 3418719964, // Long Arm
+  4: 950894542, // Threat Level
+  5: 3961462214, // Kindled Orchid
+  6: 1700366811, // Unworthy
+  0: 189854537 // The Slammer
 };
 
 export const damageTypeMap = {

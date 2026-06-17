@@ -4,6 +4,7 @@ x: done
 
 want to get done:
 ------------------
+- toggle for showing/including perks that currently cannot roll on a weapon (by default, currentlyCanRoll false perks are not shown)
 x ability to click on perks from all perks section to exclude combos with that perk from showing in the combo results
     - better visually indicate to the user this is happening
 x make mobile UI work/look better overall
