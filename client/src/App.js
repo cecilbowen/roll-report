@@ -50,7 +50,7 @@ const App = () => {
     sameDamage: false,
     sameFrame: false,
     sameAmmo: false,
-    newGear: false,
+    // newGear: false, // isFeaturedItem is false on all weapons now, so no point
     sameName: false,
   });
 
