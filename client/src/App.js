@@ -17,6 +17,15 @@ import {
 } from './utils';
 import Options from './components/Options';
 import SearchResultsPanel from './components/SearchResultsPanel';
+import SS from './broken-weapon-screenshots.json';
+
+export const renderTiers = () => {
+  return <div className="weapon-icon-tiers">
+    {[1, 2, 3, 4, 5].map(tier =>
+      <div key={tier} className="weapon-icon-tier-diamond" />
+    )}
+  </div>;
+};
 
 const App = () => {
   // fetch-related
@@ -165,10 +174,10 @@ const App = () => {
       if (DEBUG) {
         console.log("selectedWeapon", selectedWeapon);
       }
-      setSearchText(selectedWeapon?.name);
+      setSearchText(selectedWeapon.name);
       setPerkTab("basic");
-      imgUrl = selectedWeapon?.images?.screenshot;
-      setSearchParam("id", selectedWeapon?.itemHash);
+      imgUrl = SS[selectedWeapon.itemHash]?.screenshotAlt || selectedWeapon.images?.screenshot;
+      setSearchParam("id", selectedWeapon.itemHash);
       setHoverIndex(-1);
     }
 
@@ -387,6 +396,7 @@ const App = () => {
       <div className="weapon-icon-holder">
         <img className="weapon-icon-inspect" alt={selectedWeapon?.name} src={selectedWeapon?.images?.icon}></img>
         <img className="weapon-watermark" alt={"season"} src={selectedWeapon?.images?.watermark}></img>
+        {selectedWeapon.isTieredWeapon && renderTiers()}
       </div>
       <input id="searchText" className="weapon-title"
         value={searchText}
@@ -452,7 +462,7 @@ const App = () => {
   };
 
   const renderVersion = () => {
-    const lastD2Update = "June 9, 2026"; // should prob store this in package.json or somewhere
+    const lastD2Update = "Last updated July 17, 2026"; // should prob store this in package.json or somewhere
 
     return <small className="app-version" title={lastD2Update}>
       Version {pkg.version} | <a href="https://github.com/cecilbowen/roll-report" target="_blank" rel="noreferrer">Source</a>

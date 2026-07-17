@@ -148,6 +148,21 @@ body {
   height: 92%;
   background: linear-gradient(270deg,rgba(0, 0, 0, 0.85) 0%, rgba(115, 115, 115, 0) 40%);
 }
+.weapon-icon-tiers {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  position: absolute;
+  left: 5px;
+  top: 15px;
+
+  .weapon-icon-tier-diamond {
+    width: 4px;
+    height: 4px;
+    transform: rotate(45deg);
+    background: #cdbf6e;
+  }
+}
 
 .weapon-title {
   font-family: NeueHaasDisplayMediu;
@@ -368,7 +383,8 @@ hr.solid {
   transform: scale(1.04);
 }
 .perk-icon-disabled {
-  filter: brightness(50%) sepia(100%) saturate(10000%) opacity(50%);
+  filter: brightness(50%) sepia(100%) saturate(10000%) opacity(80%);
+  background-color: #00000030;
 }
 
 .selected-weapon {

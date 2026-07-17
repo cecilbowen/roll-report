@@ -1,10 +1,13 @@
 export const STATUS_RETRY = 200;
 export const STATUS_RETRY_LIMIT = 10;
 export const DEBUG = process.env.REACT_APP_DEBUG === "true";
+export const FILTER_OUT_ACCELERATED_ASSAULT_CLONES = true;
 
 // spiderman point meme d2 emote equivalent
 const mirrorMirrorEmoteIcon = "https://www.bungie.net/common/destiny2_content/icons/a3794cf6feabce9c5925db522eca32b3.jpg";
 const avantGardeIcon = "https://www.bungie.net/common/destiny2_content/icons/85104c7ab5179093b459dc0ebef2228b.png";
+
+const ACCELERATED_ASSAULT_IDS = [3713579091, 2697390518];
 
 // todo: later on post-release, >>MAYBE<< just choose random, current season, new-gear weapon
 //       instead of some of my personal picks below
@@ -174,3 +177,78 @@ export const setSearchParam = (key, value, { replace = true } = {}) => {
     url.toString()
   );
 };
+
+export const getNonEmptyArray = (arr1, arr2) => {
+  if (Array.isArray(arr1) && arr1.length > 0) { return arr1; }
+  if (Array.isArray(arr2) && arr2.length > 0) { return arr2; }
+  return undefined;
+};
+
+const arraysMatch = (array1 = [], array2 = []) => {
+  const first = [...new Set(array1)].sort();
+  const second = [...new Set(array2)].sort();
+
+  return (
+    first.length === second.length &&
+    first.every((value, index) => value === second[index])
+  );
+};
+
+const isAcceleratedAssaultClone = (weapon, otherWeapon) => {
+  if (weapon.name !== otherWeapon.name) {
+    return false;
+  }
+
+  if (!arraysMatch(weapon.col3Opts, otherWeapon.col3Opts)) {
+    return false;
+  }
+
+  if (!arraysMatch(weapon.col4Opts, otherWeapon.col4Opts)) {
+    return false;
+  }
+
+  const weaponHasAcceleratedAssault =
+    weapon.originOpts.some(id => ACCELERATED_ASSAULT_IDS.includes(id));
+
+  const otherHasAcceleratedAssault =
+    otherWeapon.originOpts.some(id => ACCELERATED_ASSAULT_IDS.includes(id));
+
+  // Exactly one of the two must have Accelerated Assault.
+  if (weaponHasAcceleratedAssault === otherHasAcceleratedAssault) {
+    return false;
+  }
+
+  const weaponOriginsWithoutAA = weapon.originOpts.filter(
+    id => !ACCELERATED_ASSAULT_IDS.includes(id)
+  );
+
+  const otherOriginsWithoutAA = otherWeapon.originOpts.filter(
+    id => !ACCELERATED_ASSAULT_IDS.includes(id)
+  );
+
+  // After removing Accelerated Assault, the origin-trait pools must match.
+  return arraysMatch(
+    weaponOriginsWithoutAA,
+    otherOriginsWithoutAA
+  );
+};
+
+export const removeNonAcceleratedAssaultClones = weapons =>
+  weapons.filter((weapon, weaponIndex) => {
+    const hasAcceleratedAssault =
+      weapon.originOpts.some(id => ACCELERATED_ASSAULT_IDS.includes(id));
+
+    // Never remove the Accelerated Assault version.
+    if (hasAcceleratedAssault) {
+      return true;
+    }
+
+    const hasAcceleratedClone = weapons.some(
+      (otherWeapon, otherIndex) =>
+        weaponIndex !== otherIndex &&
+        otherWeapon.originOpts.some(id => ACCELERATED_ASSAULT_IDS.includes(id)) &&
+        isAcceleratedAssaultClone(weapon, otherWeapon)
+    );
+
+    return !hasAcceleratedClone;
+  });

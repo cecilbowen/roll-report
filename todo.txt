@@ -4,6 +4,9 @@ x: done
 
 want to get done:
 ------------------
+x handle weapon screenshot urls leading to 404 (usually accelerated assault versions)
+x default to not displaying duplicate weapons where [lack of] accelerated assault is the only difference
+x fix origin traits not displaying on some old weapons like "Refusal of the Call (Adept)"
 - toggle for showing/including perks that currently cannot roll on a weapon (by default, currentlyCanRoll false perks are not shown)
 x ability to click on perks from all perks section to exclude combos with that perk from showing in the combo results
     - better visually indicate to the user this is happening
@@ -37,7 +40,7 @@ x if was on tab with results, then filtered out a perk, app should swap to origi
 x arrow keys to move through guns in search panel quicker
 - ENTER functionality on modal input
 - make dim export take user's filter into account, but also update message in modal to notify user this will happen
-- add last tool updated date as a title attribute when hovering on the version text 
+x add last tool updated date as a title attribute when hovering on the version text 
 
 
 code-related cleanup:

@@ -3,6 +3,7 @@ import Database from "better-sqlite3";
 import watermarkToSeason from "./data/watermarkToSeason.json" with { type: "json" };
 import weaponTypeToGunsmithOrder from "./data/weaponTypeToGunsmithOrderHash.json" with { type: "json" };
 import { fetchAllPublicWeaponsByBungieName, initClient } from "./weaponFetcher.js";
+import { getNonEmptyArray } from "../client/src/utils.js";
 
 const adeptTags = [
   "(Adept)", "(Timelost)"
@@ -104,21 +105,38 @@ export const createPerkComboService = ({ db }) => {
     return plugWhitelist.filter(x => x.categoryIdentifier === "frames").length > 0;
   };
 
+  const isSocketEntryTierSlot = socketEntry => {
+    const socketType = getSocketType(socketEntry?.socketTypeHash);
+    const plugWhitelist = socketType?.plugWhitelist || [];
+
+    return plugWhitelist.filter(x =>
+      x.categoryIdentifier.includes("weapon_tiering.plugs.mods.enhancers")
+    ).length > 0;
+  };
+
+  const isSocketEntryAOriginTrait = socketEntry => {
+    const socketType = getSocketType(socketEntry?.socketTypeHash);
+    const plugWhitelist = socketType?.plugWhitelist || [];
+
+    return plugWhitelist.filter(x => x.categoryIdentifier === "origins").length > 0;
+  };
+
   const getOriginTraits = socketEntries => {
-    // assume it's always entry #8
-    const originEntry = socketEntries[8];
-    if (!originEntry) { return []; }
+    for (const originEntry of socketEntries) {
+      if (!originEntry) { continue; }
+      if (isSocketEntryAOriginTrait(originEntry)) {
+        // weapon perk socket type.  could fetch category from this if not enough
+        // if (originEntry.socketTypeHash && originEntry.socketTypeHash !== 3993098925) { return []; }
 
-    // weapon perk socket type.  could fetch category from this if not enough
-    if (originEntry.socketTypeHash && originEntry.socketTypeHash !== 3993098925) { return []; }
+        const myPlug = originEntry?.reusablePlugSetHash ? getPlugSet(originEntry?.reusablePlugSetHash) : undefined;
+        const hashList = getNonEmptyArray(originEntry?.reusablePlugItems, myPlug?.reusablePlugItems);
+        // const hashList = originEntry?.reusablePlugItems || myPlug?.reusablePlugItems;
 
-    // todo: probably fine, but should probably explicitly check array size (if exists) of each in case
-    //       it's possible to have both defined, in which case, maybe one array is empty and the other is not.
-    //       probably not, though...
-    const myPlug = originEntry?.reusablePlugSetHash ? getPlugSet(originEntry?.reusablePlugSetHash) : undefined;
-    const hashList = originEntry?.reusablePlugItems || myPlug?.reusablePlugItems;
+        return (hashList || []).map(x => getPerk(x.plugItemHash, true)).filter(x => x);
+      }
+    }
 
-    return hashList.map(x => getPerk(x.plugItemHash, true)).filter(x => x);
+    return [];
   };
 
   // Pull plug options for a socket entry
@@ -197,6 +215,30 @@ export const createPerkComboService = ({ db }) => {
     return null;
   };
 
+  const checkIfTieredWeapon = weaponDef => {
+    const socketCats = weaponDef?.sockets?.socketCategories || [];
+    const entries = weaponDef?.sockets?.socketEntries || [];
+
+    for (const cat of socketCats) {
+      const catHash = Number(cat.socketCategoryHash);
+      const catDef = getSocketCategory(catHash);
+      const catName = (catDef?.displayProperties?.name || "").toLowerCase();
+
+      const socketEntries = (cat.socketIndexes || [])
+        .map(idx => Number(idx))
+        .map(idx => entries[idx]);
+
+      for (const socketEntry of socketEntries) {
+        // plugCategoryIdentifier "barrels" or "magazines"
+        if (isSocketEntryTierSlot(socketEntry)) { // Empty Gear Tier Upgrade
+          return true;
+        }
+      }
+    }
+
+    return false;
+  };
+
   const getWeaponTypeString = weaponDef =>
     weaponDef?.itemTypeDisplayName || weaponDef?.itemTypeAndTierDisplayName || "Unknown";
 
@@ -240,6 +282,12 @@ export const createPerkComboService = ({ db }) => {
       const traitIdxs = findTraitSocketIndexes(def);
       if (!traitIdxs) { continue; }
 
+      // temporary -----------------------------
+
+      // ----------------------------------------
+
+      const isTieredWeapon = checkIfTieredWeapon(def);
+
       const entries = def.sockets.socketEntries;
       const col3 = traitIdxs[0];
       const col4 = traitIdxs[1];
@@ -267,6 +315,7 @@ export const createPerkComboService = ({ db }) => {
         images,
         season: watermarkToSeason[def?.iconWatermark],
         isFeaturedItem: def?.isFeaturedItem,
+        isTieredWeapon,
         weaponType,
         damageType: getDamageTypeIndex(def),
         frame: getFrameName(def),
@@ -288,13 +337,13 @@ export const createPerkComboService = ({ db }) => {
     // Combo exists if weapon can roll perkA in col3 AND perkB in col4
     // OR perkA in col4 AND perkB in col3
     return weaponRec.col3Opts.includes(perkAHash) && weaponRec.col4Opts.includes(perkBHash) ||
-    weaponRec.col3Opts.includes(perkBHash) && weaponRec.col4Opts.includes(perkAHash);
+      weaponRec.col3Opts.includes(perkBHash) && weaponRec.col4Opts.includes(perkAHash);
   };
 
   const hasOriginCombo = (weaponRec, originHash, perkHash) => {
     // combo exists if weapon can roll the origin trait with the perk in either column
     return weaponRec.col3Opts.includes(perkHash) && weaponRec.originOpts.includes(originHash) ||
-    weaponRec.col4Opts.includes(perkHash) && weaponRec.originOpts.includes(originHash);
+      weaponRec.col4Opts.includes(perkHash) && weaponRec.originOpts.includes(originHash);
   };
 
   const getPerk = (plugHash, skipEnhanced = false) => {
@@ -338,6 +387,11 @@ export const createPerkComboService = ({ db }) => {
     return ret;
   };
 
+  const getPerkName = plugHash => {
+    const perkDef = getInv(plugHash); // DestinyInventoryItemDefinition
+    return perkDef?.displayProperties?.name ?? String(plugHash);
+  };
+
   /**
    * Main function: compute combos + counts
    */
@@ -352,6 +406,17 @@ export const createPerkComboService = ({ db }) => {
     leniency = 0,
   }) => {
     const index = buildWeaponIndex();
+
+    // const weaponsWithDuplicatePerks =
+    //   findWeaponsWithSamePerkInBothColumns({
+    //     weaponIndex,
+    //     getPerkName,
+    //     onlyNewGear: true
+    //   });
+
+    // console.dir(weaponsWithDuplicatePerks, {
+    //   depth: null,
+    // });
 
     const source = index.find(w => w.itemHash === Number(weaponHash));
     if (!source) {
@@ -507,4 +572,46 @@ export const createPerkComboService = ({ db }) => {
   };
 
   return { buildWeaponIndex, computeUniqueCombos, callInventory, status };
+};
+
+const findWeaponsWithSamePerkInBothColumns = ({
+  weaponIndex,
+  getPerkName,
+  onlyNewGear = false,
+}) => {
+  const resultsByPerkHash = new Map();
+
+  for (const weapon of weaponIndex) {
+    const column3 = new Set((weapon.col3Opts || []).map(Number));
+    const column4 = new Set((weapon.col4Opts || []).map(Number));
+
+    for (const perkHash of column3) {
+      if (!column4.has(perkHash)) { continue; }
+
+      if (!resultsByPerkHash.has(perkHash)) {
+        resultsByPerkHash.set(perkHash, {
+          perkHash,
+          perkName: getPerkName(perkHash),
+          weapons: [],
+        });
+      }
+
+      if (weapon.isFeaturedItem || !onlyNewGear) {
+        resultsByPerkHash.get(perkHash).weapons.push({
+          itemHash: weapon.itemHash,
+          name: weapon.name,
+        });
+      }
+    }
+  }
+
+  return Array.from(resultsByPerkHash.values())
+    // .filter(x => x.weapons.length > 0)
+    .map(result => ({
+      ...result,
+      weapons: result.weapons.sort((a, b) =>
+        a.name.localeCompare(b.name)
+      ),
+    }))
+    .sort((a, b) => a.perkName.localeCompare(b.perkName));
 };

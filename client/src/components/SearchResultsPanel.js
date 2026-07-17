@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
-import { getWrappedIndex } from '../utils';
+import { FILTER_OUT_ACCELERATED_ASSAULT_CLONES, getWrappedIndex, removeNonAcceleratedAssaultClones } from '../utils';
+import { renderTiers } from '../App';
 
 const PANEL_LIMIT = 10; // how many weapons to list in the search results panel
 
@@ -18,14 +19,19 @@ const SearchResultsPanel = ({
 
     useEffect(() => {
         if (searchText) {
-            const page = weapons.filter(x => x.name.toLowerCase().includes(searchText.toLowerCase()));
+            let page = weapons.filter(x => x.name.toLowerCase().includes(searchText.toLowerCase()));
+
+            if (FILTER_OUT_ACCELERATED_ASSAULT_CLONES) {
+                page = removeNonAcceleratedAssaultClones(page);
+            }
+
             page.sort((a, b) => {
                 const nameComparison = a.name.localeCompare(b.name);
                 if (nameComparison !== 0) {
                     return nameComparison;
                 }
 
-                return a.season - b.season;
+                return b.season - a.season;
             });
             setSearchPage(page.slice(0, PANEL_LIMIT - 1));
         } else {
@@ -70,6 +76,7 @@ const SearchResultsPanel = ({
                     <img className={`damage-type-icon-${weapon.damageType}`}
                         alt={weapon?.damageType} src={weapon?.images?.damageType}></img>
                     <img className="weapon-watermark" alt={"season"} src={weapon?.images?.watermark}></img>
+                    {weapon.isTieredWeapon && renderTiers()}
                 </div>
                 <span>{`${weapon?.name} | Season ${weapon?.season} | ${weapon?.itemHash}`}</span>
             </div>;
